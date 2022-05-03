@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/boa-constructor/backend-firebase/issues"
   },
-  "homepage": "https://github.com/boa-constructor/backend-firebase#readme"
+  "homepage": "https://github.com/boa-constructor/backend-firebase#readme",
+  "dependencies": {
+    "firebase-functions": "^3.20.1"
+  }
 }
