@@ -1,11 +1,6 @@
 const functions = require("firebase-functions");
-// const { firestore } = require("firebase-functions");
 const admin = require("firebase-admin");
-const {
-  getFirestore,
-  Timestamp,
-  FieldValue,
-} = require("firebase-admin/firestore");
+const { getFirestore } = require("firebase-admin/firestore");
 
 const firebaseConfig = {
   apiKey: "AIzaSyB69WIWau0OsUGMqTPDA5jJs6NMsEncGR4",
@@ -22,19 +17,11 @@ const firebaseConfig = {
 admin.initializeApp(firebaseConfig);
 const db = getFirestore();
 
-exports.getUser = () => {
-  db.collection("Users")
-    .get()
-    .then((data) => {
-      console.log(data);
-      return data;
-    });
-};
-
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  functions.logger.info("Hello logs!", { structuredData: true });
-  response.send("Hello from Firebase!");
+exports.addUser = functions.https.onRequest(async (req, res) => {
+  const original = req.body;
+  const writeUser = await admin
+    .firestore()
+    .collection("Users")
+    .add({ username: original.username });
+  res.json({ result: `Message with ID: ${writeUser.id} added` });
 });
