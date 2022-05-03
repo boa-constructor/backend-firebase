@@ -1,7 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const { getFirestore } = require("firebase-admin/firestore");
-
+const express = require("express");
 const firebaseConfig = {
   apiKey: "AIzaSyB69WIWau0OsUGMqTPDA5jJs6NMsEncGR4",
   authDomain: "dndinder-68dcc.firebaseapp.com",
@@ -13,9 +12,19 @@ const firebaseConfig = {
   appId: "1:887332428606:web:fd999c4c18be4c0d106a6f",
   measurementId: "G-V4QQMW9LBW",
 };
-
 admin.initializeApp(firebaseConfig);
-const db = getFirestore();
+const app = express();
+
+app.get("/:username", async (req, res) => {
+  const username = req.params.username;
+  console.log(username);
+  const snapshot = await admin
+    .firestore()
+    .collection("Users")
+    .where("username", "==", `${username}`)
+    .get();
+  res.send({ snapshot });
+});
 
 exports.addUser = functions.https.onRequest(async (req, res) => {
   const original = req.body;
@@ -23,5 +32,17 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
     .firestore()
     .collection("Users")
     .add({ username: original.username });
-  res.json({ result: `Message with ID: ${writeUser.id} added` });
+  res.json({ result: `User with ID: ${writeUser.id} added` });
 });
+
+exports.user = functions.https.onRequest(app);
+// exports.getUser = functions.https.onRequest(async (req, res) => {
+//   const user_id = req.params;
+//   const result = await admin
+//     .firestore()
+//     .collection("Users")
+//     .doc(`${user_id}`)
+//     .get();
+//   const data = result.data();
+//   res.json({ result });
+// });
