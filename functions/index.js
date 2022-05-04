@@ -1,6 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const express = require("express");
+
 const firebaseConfig = {
   apiKey: "AIzaSyB69WIWau0OsUGMqTPDA5jJs6NMsEncGR4",
   authDomain: "dndinder-68dcc.firebaseapp.com",
@@ -23,6 +24,22 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
     .collection("Users")
     .add({ username: original.username });
   res.json({ result: `User with ID: ${writeUser.id} added` });
+});
+
+exports.addCharacter = functions.https.onRequest(async (req, res) => {
+  const { character_name, user_id } = req.body;
+  const writeCharacter = await admin
+    .firestore()
+    .collection("Characters")
+    .add({ character_name, user_id });
+  const character_id = writeCharacter._path.segments[1];
+  res.send(character_id);
+  const addCharacterToUser = await admin
+    .firestore()
+    .doc(`Users/${user_id}`)
+    .update({
+      characters: "working", // overwrites the array with a string. FIX IT!
+    });
 });
 
 exports.getUser = functions.https.onRequest(async (req, res) => {
