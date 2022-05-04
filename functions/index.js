@@ -12,19 +12,9 @@ const firebaseConfig = {
   appId: "1:887332428606:web:fd999c4c18be4c0d106a6f",
   measurementId: "G-V4QQMW9LBW",
 };
+
 admin.initializeApp(firebaseConfig);
 const app = express();
-
-app.get("/:username", async (req, res) => {
-  const username = req.params.username;
-  console.log(username);
-  const snapshot = await admin
-    .firestore()
-    .collection("Users")
-    .where("username", "==", `${username}`)
-    .get();
-  res.send({ snapshot });
-});
 
 exports.addUser = functions.https.onRequest(async (req, res) => {
   const original = req.body;
@@ -35,14 +25,27 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
   res.json({ result: `User with ID: ${writeUser.id} added` });
 });
 
-exports.user = functions.https.onRequest(app);
-// exports.getUser = functions.https.onRequest(async (req, res) => {
-//   const user_id = req.params;
-//   const result = await admin
-//     .firestore()
-//     .collection("Users")
-//     .doc(`${user_id}`)
-//     .get();
-//   const data = result.data();
-//   res.json({ result });
+exports.getUser = functions.https.onRequest(async (req, res) => {
+  const user_id = req.params[0];
+  const userRef = admin.firestore().collection("Users").doc(`${user_id}`);
+  const doc = await userRef.get();
+  if (!doc.exists) {
+    console.log("no such document");
+  } else {
+    res.send(doc.data());
+  }
+});
+
+//below is an example of uing express syntax to create an endpoint
+
+// app.get("/:username", async (req, res) => {
+//   const username = req.params.username;
+//   console.log(username);
+//   const snapshot = await admin
+//   .firestore()
+//   .collection("Users")
+//   .where("username", "==", `${username}`)
+//   .get();
+//   res.send(snapshot);
 // });
+// exports.user = functions.https.onRequest(app);
