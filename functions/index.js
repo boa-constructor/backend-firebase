@@ -28,19 +28,24 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
 
 exports.addCharacter = functions.https.onRequest(async (req, res) => {
   const { character_name, user_id } = req.body;
-  const writeCharacter = await admin
-    .firestore()
-    .collection("Characters")
-    .add({ character_name, user_id });
-  const character_id = writeCharacter._path.segments[1];
-  res.send(character_id);
-  const addCharacterToUser = await admin
-    .firestore()
-    .doc(`Users/${user_id}`)
-    .update({
-      characters: "working", // overwrites the array with a string. FIX IT!
-    });
+  try {
+    const writeCharacter = await admin
+      .firestore()
+      .collection("Characters")
+      .add({ character_name, user_id });
+    const character_id = writeCharacter._path.segments[1];
+    res.send({ character_id });
+    const addCharacterToUser = await admin
+      .firestore()
+      .doc(`Users/${user_id}`)
+      .update({
+        characters: admin.firestore.FieldValue.arrayUnion(character_id),
+      });
+  } catch (err) {
+    console.log(err);
+  }
 });
+//error for non exsistent user_id needs to be handled on front-end log in. User_id should always be valid.
 
 exports.getUser = functions.https.onRequest(async (req, res) => {
   const user_id = req.params[0];
