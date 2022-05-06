@@ -72,6 +72,22 @@ exports.getCharacterByID = functions.https.onRequest(async (req, res) => {
 	}
 });
 
+exports.getCharacters = functions.https.onRequest(async (req, res) => {
+  const charactersRef = admin.firestore().collection("Characters");
+  const snapshot = await charactersRef.get();
+  const characters = [];
+  snapshot.forEach((doc) => {
+    const character = doc.data();
+    character.character_id = doc.id;
+    characters.push(character);
+  });
+  if (characters.length) {
+    res.send({ characters });
+  } else {
+    res.status(404).send({ msg: "no characters found" });
+  }
+});
+
 //below is an example of uing express syntax to create an endpoint
 
 // app.get("/:username", async (req, res) => {
