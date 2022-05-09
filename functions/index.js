@@ -129,8 +129,8 @@ exports.updateCharacter = functions.https.onRequest(async (req, res) => {
     const updateCharacter = await admin
       .firestore()
       .collection('Characters')
-      .doc(group_id)
+      .doc(character_id)
       .update(patchData);
-    res.send(`character ${group_id} updated`);
+    res.send(`character ${character_id} updated`);
   });
 });
