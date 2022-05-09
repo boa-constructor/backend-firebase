@@ -97,16 +97,14 @@ exports.getCharacters = functions.https.onRequest(async (req, res) => {
 	});
 });
 
-//below is an example of uing express syntax to create an endpoint
-
-// app.get("/:username", async (req, res) => {
-//   const username = req.params.username;
-//   console.log(username);
-//   const snapshot = await admin
-//   .firestore()
-//   .collection("Users")
-//   .where("username", "==", `${username}`)
-//   .get();
-//   res.send(snapshot);
-// });
-// exports.user = functions.https.onRequest(app);
+exports.addGroup = functions.https.onRequest(async (req, res) => {
+  cors(req, res, async () => {
+    const { group_name, avatar, game_info, characters, dm } = req.body;
+    const writeGroup = await admin
+      .firestore()
+      .collection("Groups")
+      .add({ group_name, avatar, game_info, characters, dm });
+    const group_id = writeGroup._path.segments[1];
+    res.send({ group_id });
+  });
+});
