@@ -122,6 +122,18 @@ exports.updateGroup = functions.https.onRequest(async (req, res) => {
   });
 });
 
+
+exports.updateUser = functions.https.onRequest(async (req, res) => {
+  cors(req, res, async () => {
+    const user_id = req.params[0];
+    const patchData = { ...req.body };
+    const updateUser = await admin
+      .firestore()
+      .collection('Users')
+      .doc(user_id)
+      .update(patchData);
+    res.send(`user ${user_id} updated`);
+
 exports.updateCharacter = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const character_id = req.params[0];
