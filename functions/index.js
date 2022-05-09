@@ -90,6 +90,33 @@ exports.getCharacters = functions.https.onRequest(async (req, res) => {
   }
 });
 
+exports.addGroup = functions.https.onRequest(async (req, res) => {
+  const { group_name, avatar, game_info, characters, dm } = req.body;
+  const writeGroup = await admin
+    .firestore()
+    .collection("Groups")
+    .add({ group_name, avatar, game_info, characters, dm });
+});
+
+// exports.addCharacter = functions.https.onRequest(async (req, res) => {
+//   const { character_name, user_id } = req.body;
+//   try {
+//     const writeCharacter = await admin
+//       .firestore()
+//       .collection("Characters")
+//       .add({ character_name, user_id });
+//     const character_id = writeCharacter._path.segments[1];
+//     res.send({ character_id });
+//     const addCharacterToUser = await admin
+//       .firestore()
+//       .doc(`Users/${user_id}`)
+//       .update({
+//         characters: admin.firestore.FieldValue.arrayUnion(character_id),
+//       });
+//   } catch (err) {
+//     console.log(err);
+//   }
+// });
 //below is an example of uing express syntax to create an endpoint
 
 // app.get("/:username", async (req, res) => {
