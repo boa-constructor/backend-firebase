@@ -1,17 +1,17 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const express = require("express");
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const express = require('express');
 const cors = require(`cors`)({ origin: true });
 const firebaseConfig = {
-  apiKey: "AIzaSyB69WIWau0OsUGMqTPDA5jJs6NMsEncGR4",
-  authDomain: "dndinder-68dcc.firebaseapp.com",
+  apiKey: 'AIzaSyB69WIWau0OsUGMqTPDA5jJs6NMsEncGR4',
+  authDomain: 'dndinder-68dcc.firebaseapp.com',
   databaseURL:
-    "https://dndinder-68dcc-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "dndinder-68dcc",
-  storageBucket: "dndinder-68dcc.appspot.com",
-  messagingSenderId: "887332428606",
-  appId: "1:887332428606:web:fd999c4c18be4c0d106a6f",
-  measurementId: "G-V4QQMW9LBW",
+    'https://dndinder-68dcc-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'dndinder-68dcc',
+  storageBucket: 'dndinder-68dcc.appspot.com',
+  messagingSenderId: '887332428606',
+  appId: '1:887332428606:web:fd999c4c18be4c0d106a6f',
+  measurementId: 'G-V4QQMW9LBW',
 };
 
 admin.initializeApp(firebaseConfig);
@@ -21,7 +21,7 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
     const original = req.body;
     const writeUser = await admin
       .firestore()
-      .collection("Users")
+      .collection('Users')
       .add({ username: original.username });
     res.json({ result: `User with ID: ${writeUser.id} added` });
   });
@@ -33,7 +33,7 @@ exports.addCharacter = functions.https.onRequest(async (req, res) => {
     try {
       const writeCharacter = await admin
         .firestore()
-        .collection("Characters")
+        .collection('Characters')
         .add({ character_name, user_id });
       const character_id = writeCharacter._path.segments[1];
       res.send({ character_id });
@@ -53,12 +53,12 @@ exports.addCharacter = functions.https.onRequest(async (req, res) => {
 exports.getUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const user_id = req.params[0];
-    const userRef = admin.firestore().collection("Users").doc(`${user_id}`);
+    const userRef = admin.firestore().collection('Users').doc(`${user_id}`);
     const doc = await userRef.get();
     if (doc.exists) {
       res.send({ user: doc.data() });
     } else {
-      res.status(404).send({ msg: "User not found" });
+      res.status(404).send({ msg: 'User not found' });
     }
   });
 });
@@ -68,20 +68,20 @@ exports.getCharacterByID = functions.https.onRequest(async (req, res) => {
     const character_id = req.params[0];
     const characterRef = admin
       .firestore()
-      .collection("Characters")
+      .collection('Characters')
       .doc(`${character_id}`);
     const doc = await characterRef.get();
     if (doc.exists) {
       res.send({ character: doc.data() });
     } else {
-      res.status(404).send({ msg: "Character not found" });
+      res.status(404).send({ msg: 'Character not found' });
     }
   });
 });
 
 exports.getCharacters = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
-    const charactersRef = admin.firestore().collection("Characters");
+    const charactersRef = admin.firestore().collection('Characters');
     const snapshot = await charactersRef.get();
     const characters = [];
     snapshot.forEach((doc) => {
@@ -92,7 +92,7 @@ exports.getCharacters = functions.https.onRequest(async (req, res) => {
     if (characters.length) {
       res.send({ characters });
     } else {
-      res.status(404).send({ msg: "no characters found" });
+      res.status(404).send({ msg: 'no characters found' });
     }
   });
 });
@@ -102,7 +102,7 @@ exports.addGroup = functions.https.onRequest(async (req, res) => {
     const { group_name, avatar, game_info, characters, dm } = req.body;
     const writeGroup = await admin
       .firestore()
-      .collection("Groups")
+      .collection('Groups')
       .add({ group_name, avatar, game_info, characters, dm });
     const group_id = writeGroup._path.segments[1];
     res.send({ group_id });
@@ -115,9 +115,23 @@ exports.updateGroup = functions.https.onRequest(async (req, res) => {
     const patchData = { ...req.body };
     const updateGroup = await admin
       .firestore()
-      .collection("Groups")
+      .collection('Groups')
       .doc(group_id)
       .update(patchData);
     res.send(`group ${group_id} updated`);
+  });
+});
+
+exports.updateUser = functions.https.onRequest(async (req, res) => {
+  cors(req, res, async () => {
+    const user_id = req.params[0];
+    console.log(user_id);
+    const patchData = { ...req.body };
+    const updateUser = await admin
+      .firestore()
+      .collection('Users')
+      .doc(user_id)
+      .update(patchData);
+    res.send(`user ${user_id} updated`);
   });
 });
