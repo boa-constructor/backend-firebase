@@ -122,7 +122,6 @@ exports.updateGroup = functions.https.onRequest(async (req, res) => {
   });
 });
 
-
 exports.updateUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const user_id = req.params[0];
@@ -133,6 +132,8 @@ exports.updateUser = functions.https.onRequest(async (req, res) => {
       .doc(user_id)
       .update(patchData);
     res.send(`user ${user_id} updated`);
+  });
+});
 
 exports.updateCharacter = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
