@@ -91,11 +91,13 @@ exports.getCharacters = functions.https.onRequest(async (req, res) => {
 });
 
 exports.addGroup = functions.https.onRequest(async (req, res) => {
-  const { group_name, avatar, game_info, characters, dm } = req.body;
-  const writeGroup = await admin
-    .firestore()
-    .collection("Groups")
-    .add({ group_name, avatar, game_info, characters, dm });
-  const group_id = writeGroup._path.segments[1];
-  res.send({ group_id });
+  cors(req, res, async () => {
+    const { group_name, avatar, game_info, characters, dm } = req.body;
+    const writeGroup = await admin
+      .firestore()
+      .collection("Groups")
+      .add({ group_name, avatar, game_info, characters, dm });
+    const group_id = writeGroup._path.segments[1];
+    res.send({ group_id });
+  });
 });
