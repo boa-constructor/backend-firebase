@@ -18,11 +18,13 @@ admin.initializeApp(firebaseConfig);
 
 exports.addUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
-    const original = req.body;
+    const original = req.body.user_id;
+    console.log(original);
     const writeUser = await admin
       .firestore()
       .collection('Users')
-      .add({ username: original.username });
+      .doc(`${original}`)
+      .set({ doc_id: `${original}` }, { merge: true });
     res.json({ result: `User with ID: ${writeUser.id} added` });
   });
 });
