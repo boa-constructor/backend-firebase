@@ -178,3 +178,25 @@ exports.getGroupById = functions.https.onRequest(async (req, res) => {
     }
   });
 });
+
+exports.addCharacterToGroup = functions.https.onRequest(async (req, res) => {
+  cors(req, res, async () => {
+    const postBody = req.body;
+    const groupRef = admin
+      .firestore()
+      .collection('Groups')
+      .doc(`${postBody.group_id}`);
+    const updateGroup = await groupRef.update({
+      characters: admin.firestore.FieldValue.arrayUnion(postBody.character_id),
+    });
+    res.status(200).send();
+    const characterRef = admin
+      .firestore()
+      .collection('Characters')
+      .doc(`${postBody.character_id}`);
+    const updateCharacter = await characterRef.update({
+      group: postBody.group_id,
+    });
+    res.status(200).send();
+  });
+});
