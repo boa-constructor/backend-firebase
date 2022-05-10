@@ -200,3 +200,27 @@ exports.addCharacterToGroup = functions.https.onRequest(async (req, res) => {
     res.status(200).send();
   });
 });
+
+exports.removeCharacterFromGroup = functions.https.onRequest(
+  async (req, res) => {
+    cors(req, res, async () => {
+      const data = req.body;
+      const groupRef = admin
+        .firestore()
+        .collection('Groups')
+        .doc(`${data.group_id}`);
+      const updateGroup = await groupRef.update({
+        characters: admin.firestore.FieldValue.arrayRemove(data.character_id),
+      });
+      res.status(200).send();
+      const characterRef = admin
+        .firestore()
+        .collection('Characters')
+        .doc(`${data.character_id}`);
+      const updateCharacter = await characterRef.update({
+        group: '',
+      });
+      res.status(200).send();
+    });
+  }
+);
