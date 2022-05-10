@@ -121,6 +121,24 @@ exports.updateGroup = functions.https.onRequest(async (req, res) => {
   });
 });
 
+exports.getGroups = functions.https.onRequest(async (req, res) => {
+  cors(req, res, async () => {
+    const groupsRef = admin.firestore().collection('Groups');
+    const snapshot = await groupsRef.get();
+    const groups = [];
+    snapshot.forEach((doc) => {
+      const group = doc.data();
+      group.group_id = doc.id;
+      groups.push(group);
+    });
+    if (groups.length) {
+      res.send({ groups });
+    } else {
+      res.status(204).send();
+    }
+  });
+});
+
 exports.updateUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const user_id = req.params[0];
