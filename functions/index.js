@@ -98,14 +98,27 @@ exports.getCharacters = functions.https.onRequest(async (req, res) => {
 
 exports.addGroup = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
-    const { group_name, avatar, game_info, characters, dm, game_type } =
-      req.body;
+    const {
+      group_name,
+      avatar,
+      game_info,
+      characters,
+      dm,
+      game_type,
+      user_id,
+    } = req.body;
     const writeGroup = await admin
       .firestore()
       .collection('Groups')
       .add({ group_name, avatar, game_info, characters, dm, game_type });
     const group_id = writeGroup._path.segments[1];
     res.send({ group_id });
+    const userRef = admin.firestore().collection('Users').doc(`${user_id}`);
+    const updateUser = await userRef.update({
+      groups: admin.firestore.FieldValue.arrayUnion(group_id),
+    });
+    res.status(200).send();
+    res.end();
   });
 });
 
