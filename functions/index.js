@@ -91,7 +91,7 @@ exports.getCharacters = functions.https.onRequest(async (req, res) => {
     if (characters.length) {
       res.send({ characters });
     } else {
-      res.status(404).send({ msg: 'no characters found' });
+      res.status(204).send();
     }
   });
 });
