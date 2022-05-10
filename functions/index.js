@@ -164,3 +164,16 @@ exports.updateCharacter = functions.https.onRequest(async (req, res) => {
     res.send(`character ${character_id} updated`);
   });
 });
+
+exports.getGroupById = functions.https.onRequest(async (req, res) => {
+  cors(req, res, async () => {
+    const group_id = req.params[0];
+    const groupRef = admin.firestore().collection('Groups').doc(`${group_id}`);
+    const doc = await groupRef.get();
+    if (doc.exists) {
+      res.send({ group: doc.data() });
+    } else {
+      res.status(204).send();
+    }
+  });
+});
