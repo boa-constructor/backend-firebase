@@ -39,7 +39,6 @@ exports.addCharacter = functions.https.onRequest(async (req, res) => {
       .add(postData);
     const character_id = writeCharacter._path.segments[1];
     res.send({ character_id });
-    console.log(user_id);
     const addCharacterToUser = await admin
       .firestore()
       .doc(`Users/${user_id}`)
