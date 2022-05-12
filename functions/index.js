@@ -120,22 +120,23 @@ exports.getCharacters = functions.https.onRequest(async (req, res) => {
 
 exports.addGroup = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
-    const {
-      group_name,
-      avatar,
-      game_info,
-      characters,
-      dm,
-      game_type,
-      user_id,
-    } = req.body;
+    console.log(req.body, '<<< req');
+    const postBody = { ...req.body };
     const writeGroup = await admin
       .firestore()
       .collection('Groups')
-      .add({ group_name, avatar, game_info, characters, dm, game_type });
+      .add(postBody);
     const group_id = writeGroup._path.segments[1];
+    const updateGroup = await admin
+      .firestore()
+      .collection('Groups')
+      .doc(`${group_id}`)
+      .set({ group_id }, { merge: true });
     res.send({ group_id });
-    const userRef = admin.firestore().collection('Users').doc(`${user_id}`);
+    const userRef = admin
+      .firestore()
+      .collection('Users')
+      .doc(`${postBody.user_id}`);
     const updateUser = await userRef.update({
       groups: admin.firestore.FieldValue.arrayUnion(group_id),
     });
@@ -206,8 +207,9 @@ exports.getGroupById = functions.https.onRequest(async (req, res) => {
     const group_id = req.params[0];
     const groupRef = admin.firestore().collection('Groups').doc(`${group_id}`);
     const doc = await groupRef.get();
+    console.log(doc.data());
     if (doc.exists) {
-      res.send({ group: doc.data() });
+      res.send({ group: doc.data(), group_id: group_id });
     } else {
       res.status(204).send();
     }
@@ -217,6 +219,7 @@ exports.getGroupById = functions.https.onRequest(async (req, res) => {
 exports.addCharacterToGroup = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const postBody = req.body;
+    console.log(req.body);
     const groupRef = admin
       .firestore()
       .collection('Groups')
