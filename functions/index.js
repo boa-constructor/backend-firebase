@@ -23,8 +23,11 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
     const writeUser = await admin
       .firestore()
       .collection('Users')
-      .doc(`${original}`)
-      .set({ doc_id: `${original}` }, { merge: true });
+      .doc(`${original.user_id}`)
+      .set(
+        { doc_id: `${original.user_id}`, email: `${original.email}` },
+        { merge: true }
+      );
     res.json({ result: `User with ID: ${writeUser.id} added` });
   });
 });
