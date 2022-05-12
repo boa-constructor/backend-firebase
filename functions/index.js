@@ -19,16 +19,35 @@ admin.initializeApp(firebaseConfig);
 exports.addUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const original = req.body.user_id;
-    console.log(original);
     const writeUser = await admin
       .firestore()
       .collection('Users')
       .doc(`${original.user_id}`)
       .set(
-        { doc_id: `${original.user_id}`, email: `${original.email}` },
+        {
+          doc_id: `${original.user_id}`,
+          email: `${original.email}`,
+        },
         { merge: true }
       );
     res.json({ result: `User with ID: ${writeUser.id} added` });
+    const doc = await admin
+      .firestore()
+      .collection('Users')
+      .doc(`${original.user_id}`)
+      .get();
+    if (!doc.data().characters) {
+      const writeUser = await admin
+        .firestore()
+        .collection('Users')
+        .doc(`${original.user_id}`)
+        .set(
+          {
+            characters: [],
+          },
+          { merge: true }
+        );
+    }
   });
 });
 
