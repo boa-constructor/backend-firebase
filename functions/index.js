@@ -18,7 +18,6 @@ admin.initializeApp(firebaseConfig);
 
 exports.addUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
-    console.log(req.body);
     const original = req.body.postBody;
     const writeUser = await admin
       .firestore()
@@ -127,14 +126,12 @@ exports.addGroup = functions.https.onRequest(async (req, res) => {
       .collection('Groups')
       .add(postBody);
     const group_id = writeGroup._path.segments[1];
-    console.log(group_id, 'group id');
     const updateGroup = await admin
       .firestore()
       .collection('Groups')
       .doc(`${group_id}`)
       .set({ group_id }, { merge: true });
     res.send({ group_id });
-    console.log(postBody);
     const userRef = admin
       .firestore()
       .collection('Users')
@@ -209,7 +206,6 @@ exports.getGroupById = functions.https.onRequest(async (req, res) => {
     const group_id = req.params[0];
     const groupRef = admin.firestore().collection('Groups').doc(`${group_id}`);
     const doc = await groupRef.get();
-    console.log(doc.data());
     if (doc.exists) {
       res.send({ group: doc.data(), group_id: group_id });
     } else {
