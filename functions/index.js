@@ -121,19 +121,20 @@ exports.getCharacters = functions.https.onRequest(async (req, res) => {
 
 exports.addGroup = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
-    console.log(req.body, '<<< req');
     const postBody = { ...req.body };
     const writeGroup = await admin
       .firestore()
       .collection('Groups')
       .add(postBody);
     const group_id = writeGroup._path.segments[1];
+    console.log(group_id, 'group id');
     const updateGroup = await admin
       .firestore()
       .collection('Groups')
       .doc(`${group_id}`)
       .set({ group_id }, { merge: true });
     res.send({ group_id });
+    console.log(postBody);
     const userRef = admin
       .firestore()
       .collection('Users')
