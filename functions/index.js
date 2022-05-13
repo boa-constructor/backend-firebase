@@ -18,7 +18,8 @@ admin.initializeApp(firebaseConfig);
 
 exports.addUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
-    const original = req.body.user_id;
+    console.log(req.body);
+    const original = req.body.postBody;
     const writeUser = await admin
       .firestore()
       .collection('Users')
