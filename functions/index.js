@@ -19,7 +19,19 @@ admin.initializeApp(firebaseConfig);
 exports.getUsers = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const usersRef = admin.firestore().collection('Users');
-    const snapshot = await usersRef.get();
+    const query = req.query;
+    if (req.query.gametype) {
+      let snapshot = await usersRef.where(
+        `game_type`,
+        `==`,
+        `${req.query.gametype}`
+      );
+    } else {
+      let snapshot = await usersRef.get();
+    }
+    // query is accessed by ?order=ascending&height=small
+
+    await usersRef.get();
     const users = [];
     snapshot.forEach((doc) => {
       const user = doc.data();
