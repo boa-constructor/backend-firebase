@@ -16,6 +16,23 @@ const firebaseConfig = {
 
 admin.initializeApp(firebaseConfig);
 
+exports.getUsers = functions.https.onRequest(async (req, res) => {
+  cors(req, res, async () => {
+    const usersRef = admin.firestore().collection('Users');
+    const snapshot = await usersRef.get();
+    const users = [];
+    snapshot.forEach((doc) => {
+      const user = doc.data();
+      users.push(user);
+    });
+    if (users.length) {
+      res.send(users);
+    } else {
+      res.status(204).send();
+    }
+  });
+});
+
 exports.addUser = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const original = req.body.postBody;
