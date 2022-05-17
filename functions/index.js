@@ -234,7 +234,6 @@ exports.getGroupById = functions.https.onRequest(async (req, res) => {
 exports.addUserToGroup = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const postBody = req.body;
-    console.log(req.body);
     const groupRef = admin
       .firestore()
       .collection('Groups')
