@@ -16,19 +16,40 @@ const firebaseConfig = {
 
 admin.initializeApp(firebaseConfig);
 
+// query is accessed in the URL by ?gametype=online
+// multiple queries would be ?gametype=online&preferredday=saturday
+// this function currrently only queries game_type
 exports.getUsers = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const usersRef = admin.firestore().collection('Users');
-    const snapshot = await usersRef.get();
-    const users = [];
-    snapshot.forEach((doc) => {
-      const user = doc.data();
-      users.push(user);
-    });
-    if (users.length) {
-      res.send(users);
+    const query = req.query;
+    console.log(req.query.gametype);
+    if (req.query.gametype) {
+      let snapshot = await usersRef
+        .where(`game_type`, `==`, `${req.query.gametype}`)
+        .get();
+      const users = [];
+      snapshot.forEach((doc) => {
+        const user = doc.data();
+        users.push(user);
+      });
+      if (users.length) {
+        res.send(users);
+      } else {
+        res.status(204).send();
+      }
     } else {
-      res.status(204).send();
+      let snapshot = await usersRef.get();
+      const users = [];
+      snapshot.forEach((doc) => {
+        const user = doc.data();
+        users.push(user);
+      });
+      if (users.length) {
+        res.send(users);
+      } else {
+        res.status(204).send();
+      }
     }
   });
 });
