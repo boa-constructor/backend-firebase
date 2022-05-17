@@ -231,6 +231,28 @@ exports.getGroupById = functions.https.onRequest(async (req, res) => {
   });
 });
 
+exports.addUserToGroup = functions.https.onRequest(async (req, res) => {
+  cors(req, res, async () => {
+    const postBody = req.body;
+    const groupRef = admin
+      .firestore()
+      .collection('Groups')
+      .doc(`${postBody.group_id}`);
+    const updateGroup = await groupRef.update({
+      members: admin.firestore.FieldValue.arrayUnion(postBody.user_id),
+    });
+    res.status(200).send();
+    const userRef = admin
+      .firestore()
+      .collection('Users')
+      .doc(`${postBody.user_id}`);
+    const updateUser = await userRef.update({
+      groups: admin.firestore.FieldValue.arrayUnion(postBody.group_id),
+    });
+    res.status(200).send();
+  });
+});
+
 exports.addCharacterToGroup = functions.https.onRequest(async (req, res) => {
   cors(req, res, async () => {
     const postBody = req.body;
