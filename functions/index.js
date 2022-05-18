@@ -321,23 +321,26 @@ exports.removeCharacterFromGroup = functions.https.onRequest(
 	}
 );
 
-exports.addMessage = functions.https.onRequest(async (req, res) => {
-	cors(req, res, async () => {
-		const { user_id, text, conversation_id } = req.body;
-		const messageRef = admin
-			.firestore()
-			.collection('Messages')
-			.doc(`${conversation_id}`)
-			.collection('Conversation');
-		const writeMessage = await messageRef.add({
-			user_id,
-			text,
-			created_at: admin.firestore.FieldValue.serverTimestamp(),
+exports.addMessageToConversationId = functions.https.onRequest(
+	async (req, res) => {
+		cors(req, res, async () => {
+			const { user_id, text } = req.body;
+			const conversation_id = req.params[0];
+			const messageRef = admin
+				.firestore()
+				.collection('Messages')
+				.doc(`${conversation_id}`)
+				.collection('Conversation');
+			const writeMessage = await messageRef.add({
+				user_id,
+				text,
+				created_at: admin.firestore.FieldValue.serverTimestamp(),
+			});
+			const message_id = writeMessage._path.segments[3];
+			res.status(201).send({ message_id });
 		});
-		const message_id = writeMessage._path.segments[3];
-		res.status(201).send({ message_id });
-	});
-});
+	}
+);
 
 exports.getMessagesByConversationId = functions.https.onRequest(
 	async (req, res) => {
