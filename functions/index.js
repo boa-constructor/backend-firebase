@@ -54,38 +54,38 @@ exports.getUsers = functions.https.onRequest(async (req, res) => {
 });
 
 exports.addUser = functions.https.onRequest(async (req, res) => {
-	cors(req, res, async () => {
-		const original = req.body.postBody;
-		const writeUser = await admin
-			.firestore()
-			.collection('Users')
-			.doc(`${original.user_id}`)
-			.set(
-				{
-					doc_id: `${original.user_id}`,
-					email: `${original.email}`,
-				},
-				{ merge: true }
-			);
-		res.json({ result: `User with ID: ${writeUser.id} added` });
-		const doc = await admin
-			.firestore()
-			.collection('Users')
-			.doc(`${original.user_id}`)
-			.get();
-		if (!doc.data().characters) {
-			await admin
-				.firestore()
-				.collection('Users')
-				.doc(`${original.user_id}`)
-				.set(
-					{
-						characters: [],
-					},
-					{ merge: true }
-				);
-		}
-	});
+  cors(req, res, async () => {
+    const original = req.body.postBody;
+    const writeUser = await admin
+      .firestore()
+      .collection('Users')
+      .doc(`${original.user_id}`)
+      .set(
+        {
+          user_id: `${original.user_id}`,
+        },
+        { merge: true }
+      );
+    res.json({ result: `User with ID: ${writeUser.id} added` });
+    const doc = await admin
+      .firestore()
+      .collection('Users')
+      .doc(`${original.user_id}`)
+      .get();
+    if (!doc.data().characters) {
+      const writeUser = await admin
+        .firestore()
+        .collection('Users')
+        .doc(`${original.user_id}`)
+        .set(
+          {
+            characters: [],
+          },
+          { merge: true }
+        );
+    }
+  });
+
 });
 
 exports.addCharacter = functions.https.onRequest(async (req, res) => {
