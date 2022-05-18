@@ -358,7 +358,7 @@ exports.getMessagesByConversationId = functions.https.onRequest(
 				}
 			});
 			if (messages.length) {
-				// messages.sort((a, b) => a.created_at - b.created_at);
+				messages.sort((a, b) => a.created_at - b.created_at);
 				res.send({ messages });
 			} else {
 				res.status(204).send();
