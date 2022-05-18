@@ -338,3 +338,29 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
     res.status(201).send({ message_id });
   });
 });
+
+exports.getMessagesByConversationId = functions.https.onRequest(
+  async (req, res) => {
+    cors(req, res, async () => {
+      const conversation_id = req.params[0];
+      console.log(conversation_id, 'convo id');
+      const messagesRef = admin
+        .firestore()
+        .collection('Messages')
+        .doc(`${conversation_id}`)
+        .collection('Conversation');
+      const snapshot = await messagesRef.get();
+      const messages = [];
+      snapshot.forEach((doc) => {
+        const message = doc.data();
+        message.message_id = doc.id;
+        messages.push(message);
+      });
+      if (messages.length) {
+        res.send({ messages });
+      } else {
+        res.status(204).send();
+      }
+    });
+  }
+);
