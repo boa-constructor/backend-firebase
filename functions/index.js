@@ -63,8 +63,7 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
       .doc(`${original.user_id}`)
       .set(
         {
-          doc_id: `${original.user_id}`,
-          email: `${original.email}`,
+          user_id: `${original.user_id}`,
         },
         { merge: true }
       );
