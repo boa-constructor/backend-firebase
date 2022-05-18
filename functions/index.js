@@ -16,17 +16,16 @@ const firebaseConfig = {
 
 admin.initializeApp(firebaseConfig);
 
-// query is accessed in the URL by ?gametype=online
-// multiple queries would be ?gametype=online&preferredday=saturday
+// query is accessed in the URL by ?game_type=online
+// multiple queries would be ?game_type=online&preferredday=saturday
 // this function currrently only queries game_type
 exports.getUsers = functions.https.onRequest(async (req, res) => {
 	cors(req, res, async () => {
 		const usersRef = admin.firestore().collection('Users');
-		const query = req.query;
-		console.log(req.query.gametype);
-		if (req.query.gametype) {
+		const { game_type } = req.query;
+		if (game_type) {
 			let snapshot = await usersRef
-				.where(`game_type`, `==`, `${req.query.gametype}`)
+				.where(`game_type`, `==`, `${game_type}`)
 				.get();
 			const users = [];
 			snapshot.forEach((doc) => {
@@ -186,7 +185,7 @@ exports.updateGroup = functions.https.onRequest(async (req, res) => {
 	cors(req, res, async () => {
 		const group_id = req.params[0];
 		const patchData = { ...req.body };
-		const updateGroup = await admin
+		await admin
 			.firestore()
 			.collection('Groups')
 			.doc(group_id)
@@ -254,21 +253,15 @@ exports.getGroupById = functions.https.onRequest(async (req, res) => {
 
 exports.addUserToGroup = functions.https.onRequest(async (req, res) => {
 	cors(req, res, async () => {
-		const postBody = req.body;
-		const groupRef = admin
-			.firestore()
-			.collection('Groups')
-			.doc(`${postBody.group_id}`);
-		const updateGroup = await groupRef.update({
-			members: admin.firestore.FieldValue.arrayUnion(postBody.user_id),
+		const { group_id, user_id } = req.body;
+		const groupRef = admin.firestore().collection('Groups').doc(`${group_id}`);
+		await groupRef.update({
+			members: admin.firestore.FieldValue.arrayUnion(user_id),
 		});
 		res.status(200).send();
-		const userRef = admin
-			.firestore()
-			.collection('Users')
-			.doc(`${postBody.user_id}`);
-		const updateUser = await userRef.update({
-			groups: admin.firestore.FieldValue.arrayUnion(postBody.group_id),
+		const userRef = admin.firestore().collection('Users').doc(`${user_id}`);
+		await userRef.update({
+			groups: admin.firestore.FieldValue.arrayUnion(group_id),
 		});
 		res.status(200).send();
 	});
@@ -292,21 +285,18 @@ exports.removeUserFromGroup = functions.https.onRequest(async (req, res) => {
 
 exports.addCharacterToGroup = functions.https.onRequest(async (req, res) => {
 	cors(req, res, async () => {
-		const postBody = req.body;
-		const groupRef = admin
-			.firestore()
-			.collection('Groups')
-			.doc(`${postBody.group_id}`);
-		const updateGroup = await groupRef.update({
-			characters: admin.firestore.FieldValue.arrayUnion(postBody.character_id),
+		const { character_id, group_id } = req.body;
+		const groupRef = admin.firestore().collection('Groups').doc(`${group_id}`);
+		await groupRef.update({
+			characters: admin.firestore.FieldValue.arrayUnion(character_id),
 		});
 		res.status(200).send();
 		const characterRef = admin
 			.firestore()
 			.collection('Characters')
-			.doc(`${postBody.character_id}`);
-		const updateCharacter = await characterRef.update({
-			group: postBody.group_id,
+			.doc(`${character_id}`);
+		await characterRef.update({
+			group: group_id,
 		});
 		res.status(200).send();
 	});
@@ -315,20 +305,20 @@ exports.addCharacterToGroup = functions.https.onRequest(async (req, res) => {
 exports.removeCharacterFromGroup = functions.https.onRequest(
 	async (req, res) => {
 		cors(req, res, async () => {
-			const data = req.body;
+			const { character_id, group_id } = req.body;
 			const groupRef = admin
 				.firestore()
 				.collection('Groups')
-				.doc(`${data.group_id}`);
-			const updateGroup = await groupRef.update({
-				characters: admin.firestore.FieldValue.arrayRemove(data.character_id),
+				.doc(`${group_id}`);
+			await groupRef.update({
+				characters: admin.firestore.FieldValue.arrayRemove(character_id),
 			});
 			res.status(200).send();
 			const characterRef = admin
 				.firestore()
 				.collection('Characters')
-				.doc(`${data.character_id}`);
-			const updateCharacter = await characterRef.update({
+				.doc(`${character_id}`);
+			await characterRef.update({
 				group: '',
 			});
 			res.status(200).send();
