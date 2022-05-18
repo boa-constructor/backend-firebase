@@ -74,7 +74,7 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
 			.doc(`${original.user_id}`)
 			.get();
 		if (!doc.data().characters) {
-			const writeUser = await admin
+			await admin
 				.firestore()
 				.collection('Users')
 				.doc(`${original.user_id}`)
@@ -163,7 +163,7 @@ exports.addGroup = functions.https.onRequest(async (req, res) => {
 			.collection('Groups')
 			.add(postBody);
 		const group_id = writeGroup._path.segments[1];
-		const updateGroup = await admin
+		await admin
 			.firestore()
 			.collection('Groups')
 			.doc(`${group_id}`)
@@ -173,7 +173,7 @@ exports.addGroup = functions.https.onRequest(async (req, res) => {
 			.firestore()
 			.collection('Users')
 			.doc(`${postBody.user_id}`);
-		const updateUser = await userRef.update({
+		await userRef.update({
 			groups: admin.firestore.FieldValue.arrayUnion(group_id),
 		});
 		res.status(200).send();
@@ -216,11 +216,7 @@ exports.updateUser = functions.https.onRequest(async (req, res) => {
 	cors(req, res, async () => {
 		const user_id = req.params[0];
 		const patchData = { ...req.body };
-		const updateUser = await admin
-			.firestore()
-			.collection('Users')
-			.doc(user_id)
-			.update(patchData);
+		await admin.firestore().collection('Users').doc(user_id).update(patchData);
 		res.send(`user ${user_id} updated`);
 	});
 });
@@ -229,7 +225,7 @@ exports.updateCharacter = functions.https.onRequest(async (req, res) => {
 	cors(req, res, async () => {
 		const character_id = req.params[0];
 		const patchData = { ...req.body };
-		const updateCharacter = await admin
+		await admin
 			.firestore()
 			.collection('Characters')
 			.doc(character_id)
