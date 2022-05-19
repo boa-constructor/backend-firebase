@@ -54,6 +54,7 @@ exports.getUsers = functions.https.onRequest(async (req, res) => {
 });
 
 exports.addUser = functions.https.onRequest(async (req, res) => {
+
   cors(req, res, async () => {
     const original = req.body.postBody;
     const writeUser = await admin
@@ -85,6 +86,7 @@ exports.addUser = functions.https.onRequest(async (req, res) => {
         );
     }
   });
+
 });
 
 exports.addCharacter = functions.https.onRequest(async (req, res) => {
@@ -319,4 +321,53 @@ exports.removeCharacterFromGroup = functions.https.onRequest(
       res.status(200).send();
     });
   }
+);
+
+exports.addMessageToConversationId = functions.https.onRequest(
+	async (req, res) => {
+		cors(req, res, async () => {
+			const { user_id, text } = req.body;
+			const conversation_id = req.params[0];
+			const messageRef = admin
+				.firestore()
+				.collection('Messages')
+				.doc(`${conversation_id}`)
+				.collection('Conversation');
+			const writeMessage = await messageRef.add({
+				user_id,
+				text,
+				created_at: admin.firestore.FieldValue.serverTimestamp(),
+			});
+			const message_id = writeMessage._path.segments[3];
+			res.status(201).send({ message_id });
+		});
+	}
+);
+
+exports.getMessagesByConversationId = functions.https.onRequest(
+	async (req, res) => {
+		cors(req, res, async () => {
+			const conversation_id = req.params[0];
+			const messagesRef = admin
+				.firestore()
+				.collection('Messages')
+				.doc(`${conversation_id}`)
+				.collection('Conversation');
+			const snapshot = await messagesRef.get();
+			const messages = [];
+			snapshot.forEach((doc) => {
+				const message = doc.data();
+				if (message.user_id && message.created_at && message.text) {
+					message.message_id = doc.id;
+					messages.push(message);
+				}
+			});
+			if (messages.length) {
+				messages.sort((a, b) => a.created_at - b.created_at);
+				res.send({ messages });
+			} else {
+				res.status(204).send();
+			}
+		});
+	}
 );
